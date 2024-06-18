@@ -1,0 +1,12 @@
+[submodule "external/GameDataStream"]
+	path = external/GameDataStream
+	url = https://github.com/burninrubber0/GameDataStream
+[submodule "external/libdeflate"]
+	path = external/libdeflate
+	url = https://github.com/ebiggers/libdeflate
+[submodule "external/yaml-cpp"]
+	path = external/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp
+[submodule "external/argparse"]
+	path = external/argparse
+	url = https://github.com/p-ranav/argparse
