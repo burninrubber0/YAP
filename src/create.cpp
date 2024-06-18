@@ -32,6 +32,18 @@ int YAP::create()
 			if (remainder != 0)
 				resourceData[0].resize(resourceData[0].size() - remainder + 0x80, '\0');
 		}
+		if (i == 1)
+		{
+			uint64_t total = 0;
+			for (uint32_t j = 0; j < bundle.resourceCount; ++j)
+				total += bundle.entries[j].uncompressedInfo[i + 1] & 0x0FFFFFFF;
+			if (total > 0)
+			{
+				auto remainder = (bundle.resourceData[0] + resourceData[0].size() + resourceData[1].size()) % 0x80;
+				if (remainder != 0)
+					resourceData[1].resize(resourceData[1].size() - remainder + 0x80, '\0');
+			}
+		}
 	}
 	std::cout << '\n';
 	outputBundle(stream, bundle, resourceData);
