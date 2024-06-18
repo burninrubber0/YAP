@@ -2,6 +2,7 @@
 #include <gamedata-stream.h>
 #include <libdeflate.h>
 #include <yaml-cpp/yaml.h>
+#include <QDebug>
 #include <QList>
 #include <QMap>
 #include <QString>
