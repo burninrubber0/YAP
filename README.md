@@ -23,6 +23,8 @@ Once extracted, resources will be output as:
 If `--nosort` was used, everything will be output directly into the specified folder. Otherwise, resources will be sorted into subdirectories based on their type.
 If `--combine-imports` was used, the imports for every resource will be in `.imports.yaml`.
 
+It may be prudent to apply [this registry edit](https://superuser.com/a/1765437) so files are sorted as expected.
+
 ### Creating bundles
 ```
 YAP c <input folder> <output bundle>
@@ -95,7 +97,6 @@ This also requires Qt 6 to be installed with the appropriate environment variabl
 In no particular order:
 * Support other bundle variants
 * Allow use of resource names in addition to IDs
-* Add an option to bypass validation for bundle creation (because it can take a while)
 * Implement duplicate checking for `.meta.yaml` and `.imports.yaml`, preferably in a way that doesn't tank performance
 
 If you have a feature request, feel free to open an issue describing it.
