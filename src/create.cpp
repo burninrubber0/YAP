@@ -60,7 +60,11 @@ void YAP::createBundle(GameDataStream& stream, YAML::Node& meta, Bundle& bundle)
 	QFileInfo debugDataInfo(inPath + debugDataFilename);
 	if (debugDataInfo.exists() && debugDataInfo.size() > 0)
 	{
-		bundle.resourceEntries = ((bundle.debugData + debugDataInfo.size() + 1) & 0xFFFFFFF0) + 0x10;
+		uint32_t entriesOffset = bundle.debugData + debugDataInfo.size() + 1;
+		if (entriesOffset % 0x10 != 0)
+			bundle.resourceEntries = (entriesOffset & 0xFFFFFFF0) + 0x10;
+		else
+			bundle.resourceEntries = entriesOffset;
 		bundle.flags |= (uint32_t)Bundle::Flags::ContainsDebugData;
 	}
 	else
@@ -294,7 +298,6 @@ void YAP::outputBundle(GameDataStream& stream, Bundle& bundle, QByteArray data[]
 		debugDataFile.open(QIODeviceBase::ReadOnly);
 		QByteArray debugData = debugDataFile.readAll();
 		debugDataFile.close();
-		debugData.append('\0');
 		stream.writeString(debugData);
 	}
 
