@@ -29,7 +29,7 @@ YAP::~YAP()
 
 void YAP::setupArgs()
 {
-	args = new argparse::ArgumentParser("YAP", "1.0-dev", argparse::default_arguments::help);
+	args = new argparse::ArgumentParser("YAP", version, argparse::default_arguments::help);
 	args->add_argument("mode")
 		.choices("e", "c")
 		.help("e=Extract the contents of a bundle to a folder\nc=Create a new bundle from a folder");
@@ -40,7 +40,7 @@ void YAP::setupArgs()
 	args->add_argument("-ns", "--nosort")
 		.store_into(doNotSortByType)
 		.flag()
-		.help("(Extract only) Do not sort resources by type");
+		.help("(Extract only) Do not sort resources by type.");
 	args->add_argument("-ci", "--combine-imports")
 		.store_into(combineImports)
 		.flag()
@@ -49,7 +49,7 @@ void YAP::setupArgs()
 		.help("(Create only) The alignment to be set on a resource's primary portion if no\nvalue is specified.\nMust be a power of 2 <=0x8000\nDefault: 0x10");
 	args->add_argument("-as", "--secondary-alignment")
 		.help("(Create only) The alignment to be set on a resource's secondary portion if no\nvalue is specified.\nMust be a power of 2 <=0x8000\nDefault: 0x80");
-	args->add_description("A simple bundle extractor/creator.\nby burninrubber0, 2024-06-12");
+	args->add_description("A simple bundle extractor/creator.\nVersion " + version + ", built " + date);
 	args->add_epilog("Examples:\n  YAP e AI.DAT ai_extracted\n  YAP c ai_extracted AI.DAT");
 }
 

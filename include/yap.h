@@ -2,6 +2,7 @@
 #include <gamedata-stream.h>
 #include <libdeflate.h>
 #include <yaml-cpp/yaml.h>
+#include <QDateTime>
 #include <QDebug>
 #include <QList>
 #include <QMap>
@@ -62,6 +63,8 @@ private:
 		QList<ResourceEntry> entries;
 	};
 
+	const std::string version = "0.1";
+	const std::string date = QDateTime::currentDateTimeUtc().toString(Qt::ISODate).left(10).toStdString();
 	QString mode;
 	QString inPath;
 	QString outPath;
