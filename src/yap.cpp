@@ -344,8 +344,8 @@ bool YAP::validateResourceMetadata(YAML::Node& meta)
 		QDirIterator it(inPath, QDirIterator::Subdirectories);
 		while (it.hasNext())
 		{
-			if (it.nextFileInfo().fileName() == idString + ".dat"
-				|| it.fileInfo().fileName() == idString + "_primary.dat")
+			if (it.nextFileInfo().fileName() == idString + defaultSuffix
+				|| it.fileInfo().fileName() == idString + primarySuffix)
 			{
 				if (!it.fileInfo().isFile() || !it.fileInfo().isReadable())
 				{
@@ -375,9 +375,9 @@ bool YAP::validateResourceMetadata(YAML::Node& meta)
 				<< "is missing its primary data portion. Aborting.";
 			return false;
 		}
-		if (resourceFiles[i][0].endsWith("_primary.dat"))
+		if (resourceFiles[i][0].endsWith(primarySuffix))
 		{
-			resourceFiles[i][1] = resourceFiles[i][0].chopped(12) + "_secondary.dat";
+			resourceFiles[i][1] = resourceFiles[i][0].chopped(primarySuffix.size()) + secondarySuffix;
 			QFileInfo secondaryInfo(resourceFiles[i][1]);
 			if (!secondaryInfo.exists())
 			{
@@ -441,10 +441,10 @@ bool YAP::validateImports(YAML::Node& meta)
 		{
 			// Find imports file and determine whether it exists, then set it as per-resource imports
 			QString importsLocation;
-			if (resourceFiles[i][0].endsWith("_primary.dat"))
-				importsLocation = resourceFiles[i][0].chopped(12) + "_imports.yaml";
+			if (resourceFiles[i][0].endsWith(primarySuffix))
+				importsLocation = resourceFiles[i][0].chopped(primarySuffix.size()) + importsSuffix;
 			else // <ID>.dat
-				importsLocation = resourceFiles[i][0].chopped(4) + "_imports.yaml";
+				importsLocation = resourceFiles[i][0].chopped(defaultSuffix.size()) + importsSuffix;
 			importsFileInfo.setFile(importsLocation);
 			if (!importsFileInfo.exists())
 				continue;

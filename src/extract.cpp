@@ -289,9 +289,11 @@ QString YAP::generateFilePath(ResourceEntry& entry, int memType)
 	QString id = QString::number(entry.id, 16).rightJustified(8, '0');
 	QString filename = id.toUpper();
 	if (memType == 0 && (entry.compressedSize[1] != 0 || entry.compressedSize[2] != 0)) // Has secondary portion
-		filename += "_primary";
-	if (memType > 0) // Is secondary portion
-		filename += "_secondary";
+		filename += primarySuffix;
+	else if (memType > 0) // Is secondary portion
+		filename += secondarySuffix;
+	else
+		filename += defaultSuffix;
 	QString outPathFinal = outPath;
 	if (!doNotSortByType) // Sort into type folders
 	{
@@ -306,7 +308,7 @@ QString YAP::generateFilePath(ResourceEntry& entry, int memType)
 
 void YAP::outputResource(char* resource, int length, QString path)
 {
-	QFile file(path + ".dat");
+	QFile file(path);
 	file.open(QIODeviceBase::WriteOnly);
 	file.write(resource, length);
 	file.flush();
@@ -347,7 +349,7 @@ void YAP::outputImports(Bundle& bundle, int resIndex)
 		QString path = generateFilePath(resEntry, 0);
 		if (path.endsWith("_primary"))
 			path.chop(8);
-		importsFile.setFileName(path + "_imports.yaml");
+		importsFile.setFileName(path + importsSuffix);
 		if (!importsFile.open(QIODeviceBase::WriteOnly))
 		{
 			qWarning() << "Could not open file" << importsFile.fileName() << "for writing.";

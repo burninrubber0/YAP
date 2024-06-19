@@ -75,6 +75,10 @@ private:
 	const QString debugDataFilename = ".debug.xml";
 	const QString importsFilename = ".imports.yaml";
 	const QString metadataFilename = ".meta.yaml";
+	const QString defaultSuffix = ".dat";
+	const QString primarySuffix = "_primary.dat";
+	const QString secondarySuffix = "_secondary.dat";
+	const QString importsSuffix = "_imports.yaml";
 	QList<QStringList> resourceFiles; // [0]=primary, [1]=secondary, [2]=imports
 	YAML::Node combinedImports;
 
