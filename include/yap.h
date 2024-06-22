@@ -3,6 +3,7 @@
 #include <libdeflate.h>
 #include <yaml-cpp/yaml.h>
 #include <QDateTime>
+#include <QLocale>
 #include <QDebug>
 #include <QList>
 #include <QMap>
@@ -64,7 +65,7 @@ private:
 	};
 
 	const std::string version = "0.1";
-	const std::string date = QDateTime::currentDateTimeUtc().toString(Qt::ISODate).left(10).toStdString();
+	const std::string date = QLocale("en_US").toDate(QString(__DATE__).simplified(), "MMM d yyyy").toString(Qt::ISODate).first(10).toStdString();
 	QString mode;
 	QString inPath;
 	QString outPath;
