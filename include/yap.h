@@ -64,7 +64,7 @@ private:
 		QList<ResourceEntry> entries;
 	};
 
-	const std::string version = "0.2-adriwin";
+	const std::string version = "0.2-directory";
 	const std::string date = __DATE__;
 	QString mode;
 	QString inPath;
