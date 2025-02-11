@@ -6,6 +6,77 @@
 #include <QFileInfo>
 #include <cmath>
 
+int YAP::createDir()
+{
+	QDir dir(inPath);
+	QDir outDir(outPath);
+
+	QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+	if (entries.isEmpty())
+	{
+		qWarning() << "No folders found in" << inPath;
+		return 1;
+	}
+
+	for (const QString& folder : entries)
+	{
+		QString folderPath = dir.filePath(folder);
+		
+		// Check if folder contains .meta.yaml
+		if (!QFile::exists(folderPath + "/.meta.yaml"))
+		{
+			qInfo() << "Skipping" << folder << "(missing .meta.yaml)";
+			continue;
+		}
+
+		// Extract extension from folder name
+		QString outputName = folder;
+		QString ext;
+		int lastUnderscore = folder.lastIndexOf('_');
+		if (lastUnderscore != -1)
+		{
+			ext = folder.mid(lastUnderscore + 1);
+			outputName = folder.left(lastUnderscore);
+		}
+
+		// Skip if extension filter is set and doesn't match
+		if (!fileExtensions.isEmpty() && !fileExtensions.contains(ext, Qt::CaseInsensitive))
+		{
+			qInfo() << "Skipping" << folder << "(extension mismatch)";
+			continue;
+		}
+
+		if (!ext.startsWith("."))
+			ext.prepend(".");
+
+		QString outputBundle = outDir.filePath(outputName + ext);
+		
+		qInfo() << "Creating bundle for" << folder << "...";
+		
+		// Store current paths
+		QString savedInPath = inPath;
+		QString savedOutPath = outPath;
+		
+		// Set paths for this folder
+		inPath = folderPath + "/";
+		outPath = outputBundle;
+
+		// Clear previous resource files before creating new bundle
+		resourceFiles.clear();
+		
+		// Create bundle
+		int result = create();
+		if (result != 0)
+			qWarning() << "Failed to create bundle for" << folder;
+		
+		// Restore paths
+		inPath = savedInPath;
+		outPath = savedOutPath;
+	}
+
+	return 0;
+}
+
 int YAP::create()
 {
 	QFile file(outPath);
@@ -13,10 +84,18 @@ int YAP::create()
 	YAML::Node meta = YAML::LoadFile((inPath + metadataFilename).toStdString());
 	Bundle bundle;
 	createBundle(stream, meta, bundle);
+
+	// Validate metadata first - this populates resourceFiles, and only do that if we're in directory mode, otherwise we get "Primary portion has a duplicate file"
+	if (dirMode)
+		if (!validateMetadata()) return 1;
+
+	// Now we can safely create resource entries
+	// We where getting an out of range when creating multiple bundles from folders before doing this
 	int index = 0;
 	for (YAML::const_iterator resource = meta["resources"].begin();
 		resource != meta["resources"].end(); ++resource, ++index)
 		createResourceEntry(resource, bundle, index);
+
 	std::cout << '\n';
 	std::sort(bundle.entries.begin(), bundle.entries.end(), compareResourceEntry);
 	std::sort(resourceFiles.begin(), resourceFiles.end(), compareResourceFileList);
@@ -327,5 +406,5 @@ void YAP::outputBundle(GameDataStream& stream, Bundle& bundle, QByteArray data[]
 
 	// Save
 	stream.close();
-	std::cout << "Bundle created.";
+	std::cout << "Bundle created.\n";
 }

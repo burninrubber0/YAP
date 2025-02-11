@@ -64,11 +64,13 @@ private:
 		QList<ResourceEntry> entries;
 	};
 
-	const std::string version = "0.1";
-	const std::string date = QLocale("en_US").toDate(QString(__DATE__).simplified(), "MMM d yyyy").toString(Qt::ISODate).first(10).toStdString();
+	const std::string version = "0.2-adriwin";
+	const std::string date = __DATE__;
 	QString mode;
 	QString inPath;
 	QString outPath;
+	QStringList fileExtensions;
+	bool dirMode = false;
 	bool doNotSortByType = false;
 	bool combineImports = false;
 	uint16_t defaultPrimaryAlignment = 0x10;
@@ -102,6 +104,7 @@ private:
 	void createDecompressor();
 	void createCompressor();
 
+	int extractDir();
 	int extract();
 	bool validateBundle(GameDataStream& stream);
 	void readBundle(GameDataStream& stream, Bundle& bundle);
@@ -114,6 +117,7 @@ private:
 	void outputDebugData(GameDataStream& stream, Bundle& bundle);
 	void outputMetadata(Bundle& bundle);
 
+	int createDir();
 	int create();
 	void createBundle(GameDataStream& stream, YAML::Node& meta, Bundle& bundle);
 	void setPlatform(GameDataStream& stream, Bundle bundle);

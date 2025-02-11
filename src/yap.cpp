@@ -13,9 +13,19 @@ YAP::YAP(int argc, char* argv[])
 	}
 
 	if (mode == "e")
-		result = extract();
+	{
+		if (dirMode)
+			result = extractDir();
+		else
+			result = extract();
+	}
 	else if (mode == "c")
-		result = create();
+	{
+		if (dirMode)
+			result = createDir();
+		else
+			result = create();
+	}
 }
 
 YAP::~YAP()
@@ -33,6 +43,13 @@ void YAP::setupArgs()
 	args->add_argument("mode")
 		.choices("e", "c")
 		.help("e=Extract the contents of a bundle to a folder\nc=Create a new bundle from a folder");
+	args->add_argument("-e", "--extension")
+		.nargs(argparse::nargs_pattern::at_least_one)
+		.help("Specify the file extension to limit directory extraction/creation to.\n"
+			"If used, this cannot be the last optional argument.");
+	args->add_argument("-d", "--directory")
+		.store_into(dirMode)
+		.help("Extract all the files in a directory.");
 	args->add_argument("input")
 		.help("If extracting, the bundle to extract\nIf creating, the folder to generate a bundle from");
 	args->add_argument("output")
@@ -74,21 +91,20 @@ bool YAP::readArgs(int argc, char* argv[])
 	}
 
 	mode = args->get("mode").c_str();
-
 	inPath = args->get("input").c_str();
 	outPath = args->get("output").c_str();
 	inPath = QDir::cleanPath(inPath);
 	outPath = QDir::cleanPath(outPath);
-	if (mode == "e")
-	{
-		if (!outPath.endsWith('/'))
-			outPath += '/';
-	}
-	else if (mode == "c")
-	{
-		if (!inPath.endsWith('/'))
-			inPath += '/';
-	}
+
+	if (auto arg = args->present<std::vector<std::string>>("-e"))
+		if (arg.has_value())
+			for (const std::string& ext : arg.value())
+				fileExtensions.append(QString::fromStdString(ext.front() == '.' ? ext.substr(1) : ext));
+
+	if (mode == "e" && !outPath.endsWith('/'))
+		outPath += '/';
+	else if (mode == "c" && !inPath.endsWith('/'))
+		inPath += '/';
 
 	if (args->is_used("--primary-alignment"))
 	{
@@ -106,6 +122,26 @@ bool YAP::readArgs(int argc, char* argv[])
 
 bool YAP::validateArgs()
 {
+	if (dirMode)
+	{
+		QDir inDir(inPath);
+		QDir outDir(outPath);
+
+		if (!inDir.exists())
+		{
+			qCritical() << "Input directory does not exist:" << inPath;
+			return false;
+		}
+
+		if (!outDir.exists() && !QDir().mkpath(outPath))
+		{
+			qCritical() << "Cannot create output directory:" << outPath;
+			return false;
+		}
+
+		return true;
+	}
+
 	if (mode == "e" && !validateExtractArgs())
 		return false;
 	else if (mode == "c" && !validateCreateArgs())

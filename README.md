@@ -10,7 +10,7 @@ YAP was made for two reasons:
 Only Bundle 2 version 2, the version used in Burnout Paradise, is supported. Although support for the original bundle format would be nice to have, none of the aforementioned builds use it, so it's outside the scope of this initial release.
 
 ## Usage
-### Extracting bundles
+### Extracting a bundle
 ```
 YAP e <input bundle> <output folder>
 ```
@@ -25,7 +25,7 @@ If `--combine-imports` was used, the imports for every resource will be in `.imp
 
 It may be prudent to apply [this registry edit](https://superuser.com/a/1765437) so files are sorted as expected.
 
-### Creating bundles
+### Creating a bundle
 ```
 YAP c <input folder> <output bundle>
 ```
@@ -35,6 +35,62 @@ This uses the metadata file `.meta.yaml` to construct a bundle. Resources not de
 Note that the entire input folder, including all subdirectories, is searched indiscriminately for resources. If two resource files have matching names, regardless of their location, they will be detected as duplicates and the creation process will be aborted.
 
 If `.imports.yaml` exists, it will be used during bundle creation. To use split imports instead (provided they've been created), the combined imports file must be removed or renamed.
+
+### Extracting multiple bundles
+```
+YAP [-e .ext] -d <mode> <input folder> <output bundle>
+```
+This will extract all bundles from the input folder to the output folder that have the specified extension, if any. If no extension is specified, it will process all bundles in the input folder. The output folder will be created if it doesn't exist.
+
+### Creating multiple bundles
+```
+YAP [-e .ext] -d <mode> <input folder> <output bundle>
+```
+This will create a bundle for each folder in the input folder. If an extension is specified, it will only create the bundles from the folders that end with the specified extension, otherwise all of them will be processed. The output folder will be created if it doesn't exist.
+
+### Examples
+#### Extracting multiple bundles
+```
+.\YAP.exe -d e .\Burnout\VEHICLES\ .\Burnout\Extracted\
+```
+* Extract all bundles in the VEHICLES folder to the Extracted folder.
+
+```
+.\YAP.exe -e .BIN .DAT -d e .\Burnout\VEHICLES\ .\Burnout\Extracted\
+```
+* Extract all bundles with the .BIN and .DAT extensions in the VEHICLES folder to the Extracted folder.
+
+#### Creating multiple bundles
+```
+.\YAP.exe -d c .\Burnout\Extracted\ .\Burnout\VEHICLES\
+```
+* Create a bundle for each folder in the Extracted folder and place them in the VEHICLES folder.
+
+```
+.\YAP.exe -e .BIN .DAT -d c .\Burnout\Extracted\ .\Burnout\VEHICLES\
+```
+* Create a bundle for each folder in the Extracted folder that ends with .BIN or .DAT and place them in the VEHICLES folder.
+
+<details>
+<summary>⚠️ Important information about folder structure ⚠️</summary>
+ The subfolders need to be named with the name of the original bundle and the structure needs to be like this:
+
+  ```yaml
+  Burnout
+  ├── Extracted
+  │   ├── VEHICLES
+  │   │   ├── VEH_PUSMC02_BIN --> The name of the original bundle was VEH_PUSMC02.BIN
+  │   │   │   ├── .meta.yaml
+  │   │   │   ├── ...
+  ```
+  So it is recommended to only use this on folders where you extracted a bundle using the `-d e` argument to avoid issues.
+</details>
+
+#### Important notes about the -e argument
+1. You can specify the extension with or without the dot (both `BIN` and `.BIN` work for example)
+2. You can specify multiple extensions like: `-e BIN DAT` or `-e .BIN .DAT` or `-e BIN .DAT` or `-e .BIN DAT`
+3. If used, this cannot be the last optional argument (that's why it goes before the mode `-d` which is optional before the requiered `c` or `e`)
+4. The extension matching is case-insensitive
 
 ### Editing bundles
 #### Editing imports
