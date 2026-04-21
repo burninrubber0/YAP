@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Qt 6.6.3
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: "6.6.3"
+          host: windows
+          target: desktop
+          arch: win64_msvc2019_64
+          cache: "true"
+
+      - name: Configure CMake
+        run: cmake -S . -B _ci_build -G "Visual Studio 17 2022" -A x64
+
+      - name: Build YAP (Release)
+        run: cmake --build _ci_build --config Release --target YAP
+
+      - name: Stage artifact files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifact | Out-Null
+          Copy-Item -Path "_ci_build/Release/*" -Destination artifact -Recurse -Force
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: YAP-windows-x64
+          path: artifact/
+          if-no-files-found: error
